@@ -17,6 +17,23 @@ extension UIColor {
     static let separatorLine = UIColor(red: 32/255, green: 36/255, blue: 41/255, alpha: 1)
     static let yellowOcher = UIColor(red: 253/255, green: 175/255, blue: 49/255, alpha: 1)
     static let mediumWhite = UIColor(red: 249/255, green: 249/255, blue: 249/255, alpha: 1)
+    static let opaqueWhite = UIColor(red: 230/255, green: 230/255, blue: 230/255, alpha: 1)
+
+    
+    // LIGHT MODE
+    static let electricBlue = UIColor(red: 3/255, green: 8/255, blue: 206/255, alpha: 1)
+    
+    /// Switch color in relation to apperance
+    static func mode(dark: UIColor, light: UIColor) -> UIColor {
+        UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return dark
+            default:
+                return light
+            }
+        }
+    }
 }
 
 extension String {
@@ -142,5 +159,32 @@ extension URLRequest {
         
         // Assign the new url to the request
         self.url = URL(string: newURL)
+    }
+}
+
+extension UIViewController {
+    
+    /// Show the loader
+    func showLoader() {
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            // Disable the user interaction
+            strongSelf.view.isUserInteractionEnabled = false
+            if let window = strongSelf.view.window {
+                let loaderView = LoaderView(frame: UIScreen.main.bounds)
+                loaderView.tag = 999
+                window.addSubview(loaderView)
+                loaderView.startAnimation()
+            }
+        }
+    }
+    
+    /// Hide the loader
+    func hideLoader() {
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self, let window = strongSelf.view.window, let loaderView = window.viewWithTag(999) else { return }
+            loaderView.removeFromSuperview()
+            strongSelf.view.isUserInteractionEnabled = true
+        }
     }
 }

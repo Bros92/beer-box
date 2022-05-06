@@ -14,7 +14,7 @@ class BookmarkView: UIView {
     /// The fill color of view
     var fillColor: UIColor = .yellowOcher {
         didSet {
-            self.backgroundColor = fillColor
+            setupShape()
         }
     }
     

@@ -13,3 +13,8 @@
 "MORE_INFO" = "More Info";
 "BEER" = "Beer";
 "BOX" = "Box";
+"OK" = "Ok";
+
+// ERRORS
+"GENERIC_ERROR_TITLE" = "An error occurred";
+"GENERIC_ERROR_DESCRIPTION" = "Please check your internet connection and try again!";

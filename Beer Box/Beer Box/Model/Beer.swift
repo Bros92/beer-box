@@ -10,9 +10,10 @@ import Foundation
 struct Beer: Codable, Hashable {
     
     enum BeerCodingKeys: String, CodingKey {
-        case id, name, tagline
+        case id, name, tagline, ingredients
         case infoDescription = "description"
         case imageUrl = "image_url"
+        case foodPairing = "food_pairing"
     }
     
     /// The unique identifier of beer
@@ -28,6 +29,9 @@ struct Beer: Codable, Hashable {
     let infoDescription: String
     /// The image url of beer
     let imageUrl: String
+    /// The ingredients of beer
+//    let ingredients: Ingredients
+//    let foodPairing: [String]
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: BeerCodingKeys.self)
@@ -36,9 +40,33 @@ struct Beer: Codable, Hashable {
         self.tagline = try container.decode(String.self, forKey: .tagline)
         self.infoDescription = try container.decode(String.self, forKey: .infoDescription)
         self.imageUrl = try container.decode(String.self, forKey: .imageUrl)
+//        self.ingredients = try container.decode(Ingredients.self, forKey: .ingredients)
+//        self.foodPairing = try container.decode([String].self, forKey: .foodPairing)
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(self.uuid)
     }
+}
+
+struct Ingredients: Codable, Equatable {
+    var malts: [Malts]
+    var hops: [Hops]
+}
+
+struct Malts: Codable, Equatable {
+    var name: String
+    var amount: [Amount]
+}
+
+struct Amount: Codable, Equatable {
+    var value: Double
+    var unit: String
+}
+
+struct Hops: Codable, Equatable {
+    var name: String
+    var amount: [Amount]
+    var add: String
+    var attribute: String
 }

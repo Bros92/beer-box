@@ -11,6 +11,18 @@ protocol Reusable {
     static var reuseIdentifier: String { get }
 }
 
+protocol ErrorViewPresenter: AnyObject {
+    /// Show the alert for the error message
+    func showError(title: String, message: String)
+}
+
+protocol LoaderViewPresenter: AnyObject {
+    /// Show actiivity loader
+    func showActivityLoader()
+    /// Hide activity loader
+    func hideActivityLoader()
+}
+
 enum BeerSection {
     case main
 }

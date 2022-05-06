@@ -11,3 +11,8 @@ struct APIResponseError: Codable {
     /// The error message
     var message: String?
 }
+
+struct BeerRequest: Codable {
+    var page: Int
+    var name: String?
+}

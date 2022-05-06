@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol BeerBoxViewPresenter: AnyObject {
+protocol BeerBoxViewPresenter: ErrorViewPresenter, LoaderViewPresenter {
     func updateTableViewSnapshot()
 }

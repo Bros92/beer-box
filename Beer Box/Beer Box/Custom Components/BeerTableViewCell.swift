@@ -8,7 +8,7 @@
 import UIKit
 
 protocol BeerTableViewCellDelegate: AnyObject {
-    func moreInfoTapped()
+    func moreInfoTapped(data: PopupData)
 }
 
 class BeerTableViewCell: UITableViewCell, Reusable {
@@ -25,7 +25,7 @@ class BeerTableViewCell: UITableViewCell, Reusable {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .mediumWhite
+        label.textColor = UIColor.mode(dark: .mediumWhite, light: .semiDarkGray)
         label.font = UIFont.arabotoRegular(size: 14)
         return label
     }()
@@ -34,7 +34,7 @@ class BeerTableViewCell: UITableViewCell, Reusable {
     private lazy var subTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .veryLightGray
+        label.textColor = UIColor.mode(dark: .veryLightGray, light: .mediumGray)
         label.font = UIFont.arabotoRegular(size: 12)
         return label
     }()
@@ -43,7 +43,7 @@ class BeerTableViewCell: UITableViewCell, Reusable {
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .veryLightGray
+        label.textColor = UIColor.mode(dark: .veryLightGray, light: .mediumGray)
         label.numberOfLines = 2
         label.font = UIFont.arabotoRegular(size: 12)
         label.lineBreakMode = .byTruncatingTail
@@ -62,10 +62,12 @@ class BeerTableViewCell: UITableViewCell, Reusable {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("MORE_INFO".localized.uppercased(), for: .normal)
-        button.setTitleColor(.yellowOcher, for: .normal)
+        button.setTitleColor(UIColor.mode(dark: .yellowOcher, light: .electricBlue), for: .normal)
         button.titleLabel?.font = UIFont.arabotoRegular(size: 14)
         button.addAction(UIAction(handler: { [weak self] _ in
-            self?.delegate?.moreInfoTapped()
+            guard let strongSelf = self else { return }
+            let data = PopupData(title: strongSelf.titleLabel.text, subtitle: strongSelf.subTitleLabel.text, image: strongSelf.beerImageView.image, infoDescription: strongSelf.descriptionLabel.text)
+            self?.delegate?.moreInfoTapped(data: data)
         }), for: .touchUpInside)
         return button
     }()

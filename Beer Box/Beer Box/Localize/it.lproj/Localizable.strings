@@ -6,9 +6,14 @@
   
 */
 
-
 "BANNER_TITLE" = "Weekend Offers";
 "BANNER_DESCRIPTION" = "Free shipping on orders over %@";
 "SEARCH" = "Search";
 "MORE_INFO" = "More Info";
-"BEER_BOX" = "Beer <b>Box</b>";
+"BEER" = "Beer";
+"BOX" = "Box";
+"OK" = "Ok";
+
+// ERRORS
+"GENERIC_ERROR_TITLE" = "An error occurred";
+"GENERIC_ERROR_DESCRIPTION" = "Please check your internet connection and try again!";

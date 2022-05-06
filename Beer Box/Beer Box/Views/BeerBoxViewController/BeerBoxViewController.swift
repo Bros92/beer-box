@@ -13,11 +13,11 @@ class BeerBoxViewController: UIViewController {
         let view = BannerView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.titleText = "BANNER_TITLE".localized
-        view.titleTextColor = .semiDarkGray
+        view.titleTextColor = UIColor.mode(dark: .semiDarkGray, light: .mediumWhite)
         view.descriptionText = "BANNER_DESCRIPTION".localized(with: [presenter.sale.toCurrency()])
-        view.descriptionTextColor = .semiDarkGray
+        view.descriptionTextColor = UIColor.mode(dark: .semiDarkGray, light: .mediumWhite)
         view.bannerImage = UIImage(named: "box-icon")
-        view.backgroundColor = .yellowOcher
+        view.backgroundColor = UIColor.mode(dark: .yellowOcher, light: .electricBlue)
         return view
     }()
     
@@ -25,8 +25,8 @@ class BeerBoxViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.attributedText = NSMutableAttributedString()
-            .arabotoRegular("\("BEER".localized) ", fontSize: 30, color: .mediumWhite)
-            .arabotoBold("BOX".localized, fontSize: 30, color: .mediumWhite)
+            .arabotoRegular("\("BEER".localized) ", fontSize: 30, color: UIColor.mode(dark: .mediumWhite, light: .semiDarkGray))
+            .arabotoBold("BOX".localized, fontSize: 30, color: UIColor.mode(dark: .mediumWhite, light: .semiDarkGray))
         label.textAlignment = .center
         return label
     }()
@@ -36,9 +36,13 @@ class BeerBoxViewController: UIViewController {
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         searchBar.delegate = self
         searchBar.placeholder = "SEARCH".localized
-        searchBar.searchTextField.backgroundColor = .mediumGray
+        searchBar.searchTextField.backgroundColor = UIColor.mode(dark: .mediumGray, light: .opaqueWhite)
         searchBar.searchTextField.font = UIFont.arabotoRegular(size: 11)
-        searchBar.searchTextField.textColor = .veryLightGray
+        searchBar.searchTextField.textColor = UIColor.mode(dark: .veryLightGray, light: .mediumGray)
+        searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: "Search", attributes: [
+            .foregroundColor: UIColor.mode(dark: .veryLightGray, light: .mediumGray),
+            .font: UIFont.arabotoRegular(size: 11) as Any
+        ])
         searchBar.barTintColor = UIColor.clear
         searchBar.backgroundColor = UIColor.clear
         searchBar.isTranslucent = true
@@ -54,12 +58,14 @@ class BeerBoxViewController: UIViewController {
         tableView.register(BeerTableViewCell.self, forCellReuseIdentifier: BeerTableViewCell.reuseIdentifier)
         tableView.backgroundColor = .clear
         tableView.delegate = self
-        tableView.separatorColor = .separatorLine
+        tableView.separatorColor = UIColor.mode(dark: .separatorLine, light: .lightGray)
         tableView.separatorInset = .zero
         return tableView
     }()
     
+    /// The data source of table view
     private var beerDataSource: UITableViewDiffableDataSource<BeerSection, Beer>?
+    /// The presenter of view controller
     private var presenter = BeerBoxPresener()
 
     override func viewDidLoad() {
@@ -70,7 +76,7 @@ class BeerBoxViewController: UIViewController {
         self.view.addSubview(bannerView)
         self.view.addSubview(beerTableView)
 
-        self.view.backgroundColor = .darkGray
+        self.view.backgroundColor = UIColor.mode(dark: .darkGray, light: .mediumWhite)
         self.presenter.viewPresenter = self
         beerDataSource = UITableViewDiffableDataSource<BeerSection, Beer>(tableView: self.beerTableView, cellProvider: { [weak self] tableView, indexPath, beer in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: BeerTableViewCell.reuseIdentifier, for: indexPath) as? BeerTableViewCell else { return UITableViewCell() }
@@ -110,13 +116,12 @@ class BeerBoxViewController: UIViewController {
     func tapOut() {
         searchBar.endEditing(true)
     }
-    
 }
 
 extension BeerBoxViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        /// Start to filter beer only if the user inserted 3 or more characters, otherwise reset filter
+        // Start to filter beer only if the user inserted 3 or more characters, otherwise reset filter
         if let searchBarText = searchBar.text,
            let textRange = Range(range, in: searchBarText) {
             let updatedText = searchBarText.replacingCharacters(in: textRange,
@@ -141,16 +146,33 @@ extension BeerBoxViewController: UISearchBarDelegate {
 }
 
 extension BeerBoxViewController: BeerTableViewCellDelegate {
-    func moreInfoTapped() {
+    func moreInfoTapped(data: PopupData) {
         let popupController = PopupViewController()
-        popupController.modalPresentationStyle = .overCurrentContext
+        popupController.data = data
+        popupController.modalPresentationStyle = .overFullScreen
         popupController.modalTransitionStyle = .crossDissolve
-
         self.present(popupController, animated: true)
     }
 }
 
 extension BeerBoxViewController: BeerBoxViewPresenter {
+    func showError(title: String, message: String) {
+        DispatchQueue.main.async { [weak self] in
+            let alert = UIAlertController.init(title: title, message: message, preferredStyle: .alert)
+            let action = UIAlertAction(title: "OK".localized, style: .cancel)
+            alert.addAction(action)
+            self?.present(alert, animated: true)
+        }
+    }
+    
+    func showActivityLoader() {
+        self.showLoader()
+    }
+    
+    func hideActivityLoader() {
+        self.hideLoader()
+    }
+    
     func updateTableViewSnapshot() {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -171,6 +193,13 @@ extension BeerBoxViewController: UITableViewDelegate {
         if indexPath.row == presenter.beersList.count - 1, !self.presenter.downloadCompleted {
             self.presenter.getBeers()
         }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let item = beerDataSource?.itemIdentifier(for: indexPath) else { return }
+        let beerDetailViewController = BeerDetailViewController()
+        beerDetailViewController.beer = item
+        self.present(beerDetailViewController, animated: true)
     }
 }
 

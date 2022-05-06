@@ -10,26 +10,22 @@ import UIKit
 /// The View Controller to manage the popup of app
 class PopupViewController: UIViewController {
     
-    lazy var blurView: UIView = {
-        let containerView = UIView()
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        // 2. create custom blur view
-        let blurEffect = UIBlurEffect(style: .light)
-        let customBlurEffectView = AnimatedBlurEffect(effect: blurEffect, intensity: 0.2)
-        // 3. create semi-transparent black view
-        let dimmedView = UIView()
-        dimmedView.backgroundColor = .black.withAlphaComponent(0.6)
-        dimmedView.frame = self.view.bounds
-        
-        // 4. add both as subviews
-        containerView.addSubview(customBlurEffectView)
-        containerView.addSubview(dimmedView)
-        return containerView
+    /// The data to fill the popup
+    var data: PopupData?
+    
+    /// The background blur effect
+    private lazy var blurView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .black
+        view.alpha = 0.6
+        return view
     }()
     
     /// The bookmark of popup
     private lazy var bookmarkView: BookmarkView = {
         let view = BookmarkView()
+        view.fillColor = UIColor.mode(dark: .yellowOcher, light: .electricBlue)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -38,7 +34,7 @@ class PopupViewController: UIViewController {
     private lazy var contentView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .darkGray
+        view.backgroundColor = UIColor.mode(dark: .darkGray, light: .mediumWhite)
         return view
     }()
     
@@ -46,19 +42,19 @@ class PopupViewController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .mediumWhite
+        label.numberOfLines = 0
+        label.textColor = UIColor.mode(dark: .mediumWhite, light: .semiDarkGray)
         label.font = UIFont.arabotoRegular(size: 20)
-        label.text = "Buzz"
         return label
     }()
     
     /// The label of family of beer
     private lazy var subTitleLabel: UILabel = {
         let label = UILabel()
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .veryLightGray
+        label.textColor = UIColor.mode(dark: .veryLightGray, light: .mediumGray)
         label.font = UIFont.arabotoRegular(size: 16)
-        label.text = "A Real Bitter Experience."
         return label
     }()
     
@@ -66,10 +62,9 @@ class PopupViewController: UIViewController {
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .veryLightGray
+        label.textColor = UIColor.mode(dark: .veryLightGray, light: .mediumGray)
         label.numberOfLines = 0
         label.font = UIFont.arabotoRegular(size: 16)
-        label.text = "A light, crisp and bitter IPA brewed with English and American hops. A small batch brewed only once."
         return label
     }()
     
@@ -78,14 +73,16 @@ class PopupViewController: UIViewController {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
-        imageView.image = UIImage(named: "box-icon")
         return imageView
     }()
 
+    /// The bottom layout constraint
+    private var bottomConstraint: NSLayoutConstraint?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Add all views
         self.view.addSubview(blurView)
         self.view.addSubview(contentView)
         self.contentView.addSubview(bookmarkView)
@@ -100,7 +97,6 @@ class PopupViewController: UIViewController {
             blurView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             blurView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             blurView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: self.blurView.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: self.blurView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: self.blurView.trailingAnchor),
             contentView.topAnchor.constraint(greaterThanOrEqualTo: self.view.safeAreaLayoutGuide.topAnchor),
@@ -112,6 +108,7 @@ class PopupViewController: UIViewController {
             beerImageView.widthAnchor.constraint(equalTo: self.contentView.widthAnchor, multiplier: 0.25),
             beerImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 20),
             beerImageView.heightAnchor.constraint(equalTo: self.beerImageView.widthAnchor, multiplier: 2),
+            beerImageView.topAnchor.constraint(greaterThanOrEqualTo: self.contentView.topAnchor, constant: 20),
             titleLabel.topAnchor.constraint(equalTo: self.bookmarkView.bottomAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: self.beerImageView.trailingAnchor, constant: 10),
             self.bookmarkView.leadingAnchor.constraint(equalTo: self.titleLabel.trailingAnchor, constant: 10),
@@ -123,7 +120,46 @@ class PopupViewController: UIViewController {
             descriptionLabel.topAnchor.constraint(equalTo: self.subTitleLabel.bottomAnchor, constant: 10),
             self.contentView.bottomAnchor.constraint(equalTo: self.descriptionLabel.bottomAnchor, constant: 20)
         ])
-        
         self.contentView.layer.cornerRadius = 20
+        // Add swipe down gesture to content view
+        let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(dismissView))
+        swipeGesture.direction = .down
+        contentView.addGestureRecognizer(swipeGesture)
+        bottomConstraint = contentView.bottomAnchor.constraint(equalTo: self.blurView.bottomAnchor)
+        bottomConstraint?.isActive = true
+        bottomConstraint?.constant = 500
+
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // Set data
+        titleLabel.text = data?.title
+        subTitleLabel.text = data?.subtitle
+        descriptionLabel.text = data?.infoDescription
+        beerImageView.image = data?.image
+        
+        DispatchQueue.main.async { [weak self] in
+            UIView.animate(withDuration: 0.4) {
+                self?.bottomConstraint?.constant = 0
+                self?.view.layoutIfNeeded()
+            }
+        }
+    }
+    
+    /// Hide content view and dismiss the view
+    @objc
+    func dismissView() {
+        DispatchQueue.main.async { [weak self] in
+            UIView.animate(withDuration: 0.4) {
+                self?.bottomConstraint?.constant = 500
+                self?.view.layoutIfNeeded()
+            } completion: { executed in
+                if executed {
+                    self?.dismiss(animated: true)
+                }
+            }
+        }
     }
 }
