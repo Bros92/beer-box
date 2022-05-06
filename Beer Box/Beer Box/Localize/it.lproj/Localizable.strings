@@ -1,0 +1,14 @@
+/* 
+  Localizable.strings
+  Beer Box
+
+  Created by Vincenzo Broscritto on 05/05/22.
+  
+*/
+
+
+"BANNER_TITLE" = "Weekend Offers";
+"BANNER_DESCRIPTION" = "Free shipping on orders over %@";
+"SEARCH" = "Search";
+"MORE_INFO" = "More Info";
+"BEER_BOX" = "Beer <b>Box</b>";
