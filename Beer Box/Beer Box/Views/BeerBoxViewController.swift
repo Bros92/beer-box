@@ -112,11 +112,32 @@ class BeerBoxViewController: UIViewController {
         
         self.updateTableViewSnapshot()
         self.presenter.getBeers()
+        
+        // Add keyboard observer
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        // Remove keyboard observer
+        NotificationCenter.default.removeObserver(self)
     }
     
     @objc
-    func tapOut() {
+    private func tapOut() {
         searchBar.endEditing(true)
+    }
+    
+    @objc
+    private func keyboardWillShow() {
+        presenter.isKeyboardShown = true
+    }
+    
+    @objc
+    private func keyboardWillHide() {
+        presenter.isKeyboardShown = false
     }
 }
 
@@ -211,8 +232,10 @@ extension BeerBoxViewController: UITableViewDelegate {
 
 extension BeerBoxViewController: UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        if gestureRecognizer != tapGesture {
+        if gestureRecognizer == tapGesture, presenter.isKeyboardShown {
             return true
+        } else if gestureRecognizer != tapGesture, !presenter.isKeyboardShown {
+            return  true
         }
         return false
     }

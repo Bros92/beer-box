@@ -18,6 +18,8 @@ class BeerBoxPresener {
     private var page = 1
     /// The sale value
     let sale: Double = 60
+    /// A boolean to indicate if keyboard has been shown
+    var isKeyboardShown = false
     /// The filtered beer name
     private(set) var filteredName: String? {
         didSet {

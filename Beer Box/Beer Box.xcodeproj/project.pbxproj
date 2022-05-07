@@ -217,7 +217,7 @@
 		4D11D86E2823A64B00FDF972 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				4D11D8882824428000FDF972 /* BeerBoxViewController */,
+				4D11D8742824395A00FDF972 /* BeerBoxViewController.swift */,
 				4D11D8AC2825371100FDF972 /* PopupViewController.swift */,
 				4D11D8BA2825901100FDF972 /* BeerDetailViewController.swift */,
 			);
@@ -275,14 +275,6 @@
 				4D11D8CF28266E9F00FDF972 /* Localizable.strings */,
 			);
 			path = Localize;
-			sourceTree = "<group>";
-		};
-		4D11D8882824428000FDF972 /* BeerBoxViewController */ = {
-			isa = PBXGroup;
-			children = (
-				4D11D8742824395A00FDF972 /* BeerBoxViewController.swift */,
-			);
-			path = BeerBoxViewController;
 			sourceTree = "<group>";
 		};
 		4D11D88D282456B500FDF972 /* Model */ = {
