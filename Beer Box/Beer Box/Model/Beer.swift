@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct Beer: Codable, Hashable {
     
@@ -30,8 +31,9 @@ struct Beer: Codable, Hashable {
     /// The image url of beer
     let imageUrl: String
     /// The ingredients of beer
-//    let ingredients: Ingredients
-//    let foodPairing: [String]
+    let ingredients: Ingredients
+    /// The possible food pairing
+    let foodPairing: [String]
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: BeerCodingKeys.self)
@@ -40,8 +42,8 @@ struct Beer: Codable, Hashable {
         self.tagline = try container.decode(String.self, forKey: .tagline)
         self.infoDescription = try container.decode(String.self, forKey: .infoDescription)
         self.imageUrl = try container.decode(String.self, forKey: .imageUrl)
-//        self.ingredients = try container.decode(Ingredients.self, forKey: .ingredients)
-//        self.foodPairing = try container.decode([String].self, forKey: .foodPairing)
+        self.ingredients = try container.decode(Ingredients.self, forKey: .ingredients)
+        self.foodPairing = try container.decode([String].self, forKey: .foodPairing)
     }
     
     func hash(into hasher: inout Hasher) {
@@ -50,23 +52,23 @@ struct Beer: Codable, Hashable {
 }
 
 struct Ingredients: Codable, Equatable {
-    var malts: [Malts]
-    var hops: [Hops]
+    var malt: [Malt]
+    var hops: [Hop]
 }
 
-struct Malts: Codable, Equatable {
+struct Malt: Codable, Hashable, Equatable {
     var name: String
-    var amount: [Amount]
+    var amount: Amount
 }
 
-struct Amount: Codable, Equatable {
+struct Amount: Codable, Hashable, Equatable {
     var value: Double
     var unit: String
 }
 
-struct Hops: Codable, Equatable {
+struct Hop: Codable, Hashable, Equatable {
     var name: String
-    var amount: [Amount]
+    var amount: Amount
     var add: String
     var attribute: String
 }

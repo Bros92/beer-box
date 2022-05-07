@@ -23,6 +23,6 @@ protocol LoaderViewPresenter: AnyObject {
     func hideActivityLoader()
 }
 
-enum BeerSection {
+enum MainSection {
     case main
 }

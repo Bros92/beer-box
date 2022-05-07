@@ -35,11 +35,10 @@ class BeerBoxViewController: UIViewController {
         let searchBar = UISearchBar()
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         searchBar.delegate = self
-        searchBar.placeholder = "SEARCH".localized
         searchBar.searchTextField.backgroundColor = UIColor.mode(dark: .mediumGray, light: .opaqueWhite)
         searchBar.searchTextField.font = UIFont.arabotoRegular(size: 11)
         searchBar.searchTextField.textColor = UIColor.mode(dark: .veryLightGray, light: .mediumGray)
-        searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: "Search", attributes: [
+        searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: "SEARCH".localized, attributes: [
             .foregroundColor: UIColor.mode(dark: .veryLightGray, light: .mediumGray),
             .font: UIFont.arabotoRegular(size: 11) as Any
         ])
@@ -64,9 +63,10 @@ class BeerBoxViewController: UIViewController {
     }()
     
     /// The data source of table view
-    private var beerDataSource: UITableViewDiffableDataSource<BeerSection, Beer>?
+    private var beerDataSource: UITableViewDiffableDataSource<MainSection, Beer>?
     /// The presenter of view controller
     private var presenter = BeerBoxPresener()
+    private var tapGesture: UITapGestureRecognizer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,7 +78,7 @@ class BeerBoxViewController: UIViewController {
 
         self.view.backgroundColor = UIColor.mode(dark: .darkGray, light: .mediumWhite)
         self.presenter.viewPresenter = self
-        beerDataSource = UITableViewDiffableDataSource<BeerSection, Beer>(tableView: self.beerTableView, cellProvider: { [weak self] tableView, indexPath, beer in
+        beerDataSource = UITableViewDiffableDataSource<MainSection, Beer>(tableView: self.beerTableView, cellProvider: { [weak self] tableView, indexPath, beer in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: BeerTableViewCell.reuseIdentifier, for: indexPath) as? BeerTableViewCell else { return UITableViewCell() }
             cell.delegate = self
             cell.configure(for: beer)
@@ -101,7 +101,9 @@ class BeerBoxViewController: UIViewController {
             beerTableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             beerTableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
         ])
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOut))
+        self.tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOut))
+        tapGesture?.delegate = self
+        guard let tapGesture = tapGesture else { return }
         self.view.addGestureRecognizer(tapGesture)
     }
     
@@ -135,7 +137,7 @@ extension BeerBoxViewController: UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         // Dismiss the keyboard when the search button has been tapped
-        searchBar.endEditing(true)
+        self.tapOut()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -148,10 +150,12 @@ extension BeerBoxViewController: UISearchBarDelegate {
 extension BeerBoxViewController: BeerTableViewCellDelegate {
     func moreInfoTapped(data: PopupData) {
         let popupController = PopupViewController()
-        popupController.data = data
+        popupController.presenter = PopupPresenter(data: data)
         popupController.modalPresentationStyle = .overFullScreen
         popupController.modalTransitionStyle = .crossDissolve
-        self.present(popupController, animated: true)
+        DispatchQueue.main.async { [weak self] in
+            self?.present(popupController, animated: true)
+        }
     }
 }
 
@@ -176,7 +180,7 @@ extension BeerBoxViewController: BeerBoxViewPresenter {
     func updateTableViewSnapshot() {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            var snapshot = NSDiffableDataSourceSnapshot<BeerSection, Beer>()
+            var snapshot = NSDiffableDataSourceSnapshot<MainSection, Beer>()
             snapshot.appendSections([.main])
             snapshot.appendItems(strongSelf.presenter.filterBeers(), toSection: .main)
             self?.beerDataSource?.applySnapshotUsingReloadData(snapshot)
@@ -198,8 +202,18 @@ extension BeerBoxViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let item = beerDataSource?.itemIdentifier(for: indexPath) else { return }
         let beerDetailViewController = BeerDetailViewController()
-        beerDetailViewController.beer = item
-        self.present(beerDetailViewController, animated: true)
+        beerDetailViewController.presenter = BeerDetailPresenter(beer: item)
+        DispatchQueue.main.async { [weak self] in
+            self?.present(beerDetailViewController, animated: true)
+        }
     }
 }
 
+extension BeerBoxViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer != tapGesture {
+            return true
+        }
+        return false
+    }
+}

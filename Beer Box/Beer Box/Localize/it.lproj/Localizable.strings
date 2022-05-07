@@ -1,4 +1,4 @@
-/* 
+/*
   Localizable.strings
   Beer Box
 
@@ -6,14 +6,25 @@
   
 */
 
-"BANNER_TITLE" = "Weekend Offers";
-"BANNER_DESCRIPTION" = "Free shipping on orders over %@";
-"SEARCH" = "Search";
-"MORE_INFO" = "More Info";
+// BEER BOX
+"BANNER_TITLE" = "Offerte del Weekend";
+"BANNER_DESCRIPTION" = "Spedizioni gratuite per ordini superiori a %@";
+"SEARCH" = "Cerca";
+"MORE_INFO" = "Maggiori Info";
 "BEER" = "Beer";
 "BOX" = "Box";
 "OK" = "Ok";
 
 // ERRORS
-"GENERIC_ERROR_TITLE" = "An error occurred";
-"GENERIC_ERROR_DESCRIPTION" = "Please check your internet connection and try again!";
+"GENERIC_ERROR_TITLE" = "Si è verificato un errore";
+"GENERIC_ERROR_DESCRIPTION" = "Controlla la tua connessione ad internet e riprova!";
+
+// BEER DETAIL
+"DESCRIPTION" = "Descrizione";
+"MALTS" = "Malti";
+"HOPS" = "Luppoli";
+"FOOD_PAIRING_SUGGESTED" = "Abbinamento Gastronomico\nConsigliato";
+"NAME" = "Nome";
+"AMOUNT" = "Quantità";
+"ADD" = "Aggiunta";
+"ATTRIBUTE" = "Attributo";

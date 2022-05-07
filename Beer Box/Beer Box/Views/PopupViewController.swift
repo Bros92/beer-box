@@ -10,8 +10,8 @@ import UIKit
 /// The View Controller to manage the popup of app
 class PopupViewController: UIViewController {
     
-    /// The data to fill the popup
-    var data: PopupData?
+    /// The presenter of popup
+    var presenter: PopupPresenter?
     
     /// The background blur effect
     private lazy var blurView: UIView = {
@@ -135,10 +135,10 @@ class PopupViewController: UIViewController {
         super.viewWillAppear(animated)
         
         // Set data
-        titleLabel.text = data?.title
-        subTitleLabel.text = data?.subtitle
-        descriptionLabel.text = data?.infoDescription
-        beerImageView.image = data?.image
+        titleLabel.text = presenter?.data.title
+        subTitleLabel.text = presenter?.data.subtitle
+        descriptionLabel.text = presenter?.data.infoDescription
+        beerImageView.image = presenter?.data.image
         
         DispatchQueue.main.async { [weak self] in
             UIView.animate(withDuration: 0.4) {
@@ -156,6 +156,7 @@ class PopupViewController: UIViewController {
                 self?.bottomConstraint?.constant = 500
                 self?.view.layoutIfNeeded()
             } completion: { executed in
+                // Dismiss view controller only if animation has been executed
                 if executed {
                     self?.dismiss(animated: true)
                 }

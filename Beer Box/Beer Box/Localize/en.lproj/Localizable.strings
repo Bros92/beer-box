@@ -6,7 +6,7 @@
   
 */
 
-
+// BEER BOX
 "BANNER_TITLE" = "Weekend Offers";
 "BANNER_DESCRIPTION" = "Free shipping on orders over %@";
 "SEARCH" = "Search";
@@ -18,3 +18,13 @@
 // ERRORS
 "GENERIC_ERROR_TITLE" = "An error occurred";
 "GENERIC_ERROR_DESCRIPTION" = "Please check your internet connection and try again!";
+
+// BEER DETAIL
+"DESCRIPTION" = "Description";
+"MALTS" = "Malts";
+"HOPS" = "Hops";
+"FOOD_PAIRING_SUGGESTED" = "Food Pairing\nSuggested";
+"NAME" = "Name";
+"AMOUNT" = "Amount";
+"ADD" = "Add";
+"ATTRIBUTE" = "Attribute";
