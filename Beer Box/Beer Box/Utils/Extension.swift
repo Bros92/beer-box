@@ -188,3 +188,16 @@ extension UIViewController {
         }
     }
 }
+
+extension UIView {
+    
+    /// Round the corners at specific corner rect
+    /// - Parameters:
+    ///   - corners: The corner to change
+    ///   - radius: The value of corner radius
+    func roundCorners(corners: UIRectCorner, radius: CGFloat) {
+        self.clipsToBounds = true
+        self.layer.cornerRadius = radius
+        self.layer.maskedCorners = CACornerMask(rawValue: corners.rawValue)
+    }
+}

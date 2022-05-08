@@ -121,7 +121,10 @@ class BeerTableViewCell: UITableViewCell, Reusable {
         self.descriptionLabel.text = beer.infoDescription
         self.titleLabel.text = beer.name
         self.subTitleLabel.text = beer.tagline
-        guard let url = URL(string: beer.imageUrl) else { return }
+        guard let imageUrl = beer.imageUrl, let url = URL(string: imageUrl) else {
+            self.beerImageView.image = UIImage(named: "beer")
+            return
+        }
         self.beerImageView.getData(from: url)
     }
 }

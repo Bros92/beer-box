@@ -28,3 +28,10 @@
 "AMOUNT" = "Amount";
 "ADD" = "Add";
 "ATTRIBUTE" = "Attribute";
+
+// BEER DETAIL
+"LAGER" = "Lager";
+"STOUT" = "Stout";
+"BLODE" = "Blonde";
+"PALE" = "Pale";
+"PILSNER" = "Pilsner";

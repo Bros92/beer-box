@@ -89,7 +89,10 @@ class GeneralInfoTableViewCell: UITableViewCell, Reusable {
     func configuire(for beer: Beer) {
         self.subTitleLabel.text = beer.tagline
         self.descriptionLabel.text = beer.infoDescription
-        guard let url = URL(string: beer.imageUrl) else { return }
+        guard let imageUrl = beer.imageUrl, let url = URL(string: imageUrl) else {
+            self.beerImageView.image = UIImage(named: "beer")
+            return
+        }
         beerImageView.getData(from: url)
     }
 }

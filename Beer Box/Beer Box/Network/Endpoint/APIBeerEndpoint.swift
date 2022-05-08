@@ -32,9 +32,10 @@ enum APIBeerEndpoint: Endpoint {
             var request = URLRequest(url: url.appendingPathComponent(self.path))
             request.httpMethod = self.method.rawValue.uppercased()
             request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-            request.appendGETParameters([["page": beerRequest.page]])
             if let beerName = beerRequest.name {
-                request.appendGETParameters([["beer_name": beerName]])
+                request.appendGETParameters([["page": beerRequest.page], ["beer_name": beerName]])
+            } else {
+                request.appendGETParameters([["page": beerRequest.page]])
             }
             return request
         }

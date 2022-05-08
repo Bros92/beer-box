@@ -52,6 +52,7 @@ class BeerBoxViewController: UIViewController {
     private lazy var beerTableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.isPrefetchingEnabled = false
         tableView.estimatedRowHeight = 170
         tableView.rowHeight = UITableView.automaticDimension
         tableView.register(BeerTableViewCell.self, forCellReuseIdentifier: BeerTableViewCell.reuseIdentifier)
@@ -62,22 +63,50 @@ class BeerBoxViewController: UIViewController {
         return tableView
     }()
     
+    private lazy var filterCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.isPrefetchingEnabled = false
+        collectionView.delegate = self
+        collectionView.backgroundColor = .clear
+        let size = NSCollectionLayoutSize(
+            widthDimension: NSCollectionLayoutDimension.estimated(200),
+            heightDimension: NSCollectionLayoutDimension.fractionalHeight(1)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: size, subitem: item, count: 1)
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 20
+        var configuration = UICollectionViewCompositionalLayoutConfiguration()
+        configuration.scrollDirection = .horizontal
+        let layout = UICollectionViewCompositionalLayout(section: section, configuration: configuration)
+        collectionView.collectionViewLayout = layout
+        collectionView.register(BeerFilterCollectionViewCell.self, forCellWithReuseIdentifier: BeerFilterCollectionViewCell.reuseIdentifier)
+        return collectionView
+    }()
+    
     /// The data source of table view
     private var beerDataSource: UITableViewDiffableDataSource<MainSection, Beer>?
+    /// The data source of collection view
+    private var filterDataSource: UICollectionViewDiffableDataSource<MainSection, BeerType>?
     /// The presenter of view controller
     private var presenter = BeerBoxPresener()
+    /// The tap out gesture recognize
     private var tapGesture: UITapGestureRecognizer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Add views
         self.view.addSubview(titleLabel)
         self.view.addSubview(searchBar)
         self.view.addSubview(bannerView)
+        self.view.addSubview(filterCollectionView)
         self.view.addSubview(beerTableView)
 
         self.view.backgroundColor = UIColor.mode(dark: .darkGray, light: .mediumWhite)
         self.presenter.viewPresenter = self
+        // Setup data source
         beerDataSource = UITableViewDiffableDataSource<MainSection, Beer>(tableView: self.beerTableView, cellProvider: { [weak self] tableView, indexPath, beer in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: BeerTableViewCell.reuseIdentifier, for: indexPath) as? BeerTableViewCell else { return UITableViewCell() }
             cell.delegate = self
@@ -85,6 +114,15 @@ class BeerBoxViewController: UIViewController {
             return cell
         })
         
+        filterDataSource = UICollectionViewDiffableDataSource<MainSection, BeerType>(collectionView: filterCollectionView, cellProvider: { collectionView, indexPath, item in
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BeerFilterCollectionViewCell.reuseIdentifier, for: indexPath) as? BeerFilterCollectionViewCell else {
+                return UICollectionViewCell()
+            }
+            cell.configureUI(for: item)
+            return cell
+        })
+        
+        // Add Constraints
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
@@ -96,7 +134,11 @@ class BeerBoxViewController: UIViewController {
             bannerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 20),
             bannerView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
             bannerView.heightAnchor.constraint(equalToConstant: 70),
-            beerTableView.topAnchor.constraint(equalTo: self.bannerView.bottomAnchor),
+            filterCollectionView.topAnchor.constraint(equalTo: self.bannerView.bottomAnchor, constant: 20),
+            filterCollectionView.leadingAnchor.constraint(equalTo: bannerView.leadingAnchor),
+            filterCollectionView.trailingAnchor.constraint(equalTo: bannerView.trailingAnchor),
+            filterCollectionView.heightAnchor.constraint(equalToConstant: 50),
+            beerTableView.topAnchor.constraint(equalTo: filterCollectionView.bottomAnchor),
             beerTableView.leadingAnchor.constraint(equalTo: self.bannerView.leadingAnchor),
             beerTableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             beerTableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
@@ -111,6 +153,7 @@ class BeerBoxViewController: UIViewController {
         super.viewWillAppear(animated)
         
         self.updateTableViewSnapshot()
+        self.updateCollectionViewSnapshot()
         self.presenter.getBeers()
         
         // Add keyboard observer
@@ -126,43 +169,38 @@ class BeerBoxViewController: UIViewController {
     }
     
     @objc
+    /// Dismiss the keyboard
     private func tapOut() {
         searchBar.endEditing(true)
     }
     
     @objc
+    /// Show keyboard from observer
     private func keyboardWillShow() {
         presenter.isKeyboardShown = true
     }
     
     @objc
+    /// Hide keyboard from observer
     private func keyboardWillHide() {
         presenter.isKeyboardShown = false
     }
 }
 
-extension BeerBoxViewController: UISearchBarDelegate {
-    
-    func searchBar(_ searchBar: UISearchBar, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        // Start to filter beer only if the user inserted 3 or more characters, otherwise reset filter
-        if let searchBarText = searchBar.text,
-           let textRange = Range(range, in: searchBarText) {
-            let updatedText = searchBarText.replacingCharacters(in: textRange,
-                                                       with: text)
-            if text.isValid {
-                presenter.updateFilter(for: updatedText.count >= 3 ? updatedText : nil)
-            }
-        }
-        return true
-    }
-    
+extension BeerBoxViewController: UISearchBarDelegate, UITextFieldDelegate {
+        
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         // Dismiss the keyboard when the search button has been tapped
         self.tapOut()
+        guard let text = searchBar.text else { return }
+        self.updateCollectionViewSnapshot()
+        self.presenter.updateFilter(for: text)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.isEmpty {
+        // Refresh beer list only text is empty and filter is not selected
+        if searchText.isEmpty, presenter.filteredName != nil {
+            self.updateCollectionViewSnapshot()
             self.presenter.resetFilter()
         }
     }
@@ -181,6 +219,8 @@ extension BeerBoxViewController: BeerTableViewCellDelegate {
 }
 
 extension BeerBoxViewController: BeerBoxViewPresenter {
+    
+    /// Show a system alert in case of api error
     func showError(title: String, message: String) {
         DispatchQueue.main.async { [weak self] in
             let alert = UIAlertController.init(title: title, message: message, preferredStyle: .alert)
@@ -190,21 +230,35 @@ extension BeerBoxViewController: BeerBoxViewPresenter {
         }
     }
     
+    /// Show the loader
     func showActivityLoader() {
         self.showLoader()
     }
     
+    /// Hide the loader
     func hideActivityLoader() {
         self.hideLoader()
     }
     
+    /// Update the snapshot of table view data source
     func updateTableViewSnapshot() {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             var snapshot = NSDiffableDataSourceSnapshot<MainSection, Beer>()
             snapshot.appendSections([.main])
             snapshot.appendItems(strongSelf.presenter.filterBeers(), toSection: .main)
-            self?.beerDataSource?.applySnapshotUsingReloadData(snapshot)
+            strongSelf.beerDataSource?.applySnapshotUsingReloadData(snapshot)
+        }
+    }
+    
+    /// Update the snapshot of collection view data source
+    func updateCollectionViewSnapshot() {
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            var snapshot = NSDiffableDataSourceSnapshot<MainSection, BeerType>()
+            snapshot.appendSections([.main])
+            snapshot.appendItems(strongSelf.presenter.filterBeerList, toSection: .main)
+            strongSelf.filterDataSource?.applySnapshotUsingReloadData(snapshot)
         }
     }
 }
@@ -215,12 +269,14 @@ extension BeerBoxViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        // Setup pagination
         if indexPath.row == presenter.beersList.count - 1, !self.presenter.downloadCompleted {
             self.presenter.getBeers()
         }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // Show beer details
         guard let item = beerDataSource?.itemIdentifier(for: indexPath) else { return }
         let beerDetailViewController = BeerDetailViewController()
         beerDetailViewController.presenter = BeerDetailPresenter(beer: item)
@@ -230,10 +286,28 @@ extension BeerBoxViewController: UITableViewDelegate {
     }
 }
 
+extension BeerBoxViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        guard let cell = collectionView.cellForItem(at: indexPath), let item = filterDataSource?.itemIdentifier(for: indexPath) else { return false }
+        if cell.isSelected {
+            collectionView.deselectItem(at: indexPath, animated: true)
+            presenter.updateFilter(for: nil)
+        } else {
+            collectionView.selectItem(at: indexPath, animated: true, scrollPosition: [])
+            presenter.updateFilter(for: item.localizedType)
+            return true
+        }
+        return false
+    }
+}
+
 extension BeerBoxViewController: UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        // Check if the gesture recognizer is the tap gesture
         if gestureRecognizer == tapGesture, presenter.isKeyboardShown {
             return true
+        // Check if the gesture recognizer is the cell tapr
         } else if gestureRecognizer != tapGesture, !presenter.isKeyboardShown {
             return  true
         }

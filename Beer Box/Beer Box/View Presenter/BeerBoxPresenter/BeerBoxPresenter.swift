@@ -10,8 +10,10 @@ import Foundation
 class BeerBoxPresener {
     
     weak var viewPresenter: BeerBoxViewPresenter?
-    
+    /// The list of beer downloaded
     private(set) var beersList = [Beer]()
+    /// The list of type of beer to use as filter
+    let filterBeerList = BeerType.allCases
     /// True if there are no more items to download
     private(set) var downloadCompleted = false
     /// The number of pages downloaded
@@ -23,8 +25,8 @@ class BeerBoxPresener {
     /// The filtered beer name
     private(set) var filteredName: String? {
         didSet {
-            guard oldValue != filteredName else { return }
-            self.viewPresenter?.updateTableViewSnapshot()
+            self.page = 1
+            self.getBeers(for: filteredName)
         }
     }
     
@@ -37,13 +39,20 @@ class BeerBoxPresener {
             self?.viewPresenter?.hideActivityLoader()
             switch result {
             case .success(let beersList):
-                guard !beersList.isEmpty else {
-                    self?.downloadCompleted = true
-                    return
+                guard let strongSelf = self else { return }
+               
+                if strongSelf.page == 1 {
+                    strongSelf.beersList = beersList
+                } else {
+                    strongSelf.beersList.append(contentsOf: beersList)
+
                 }
-                self?.page += 1
-                self?.beersList.append(contentsOf: beersList)
-                self?.viewPresenter?.updateTableViewSnapshot()
+                if beersList.count < 25 {
+                    strongSelf.downloadCompleted = true
+                } else {
+                    strongSelf.page += 1
+                }
+                strongSelf.viewPresenter?.updateTableViewSnapshot()
             case .failure(let error):
                 debugPrint(error.localizedDescription)
                 self?.viewPresenter?.showError(title: "GENERIC_ERROR_TITLE".localized, message: "GENERIC_ERROR_DESCRIPTION".localized)
@@ -62,7 +71,6 @@ class BeerBoxPresener {
     
     /// Remove filter and return the complete beers list.
     func resetFilter() {
-        self.page = 1
         self.filteredName = nil
     }
     

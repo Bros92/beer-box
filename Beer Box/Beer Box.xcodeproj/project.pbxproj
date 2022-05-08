@@ -42,6 +42,9 @@
 		4D11D8D628269E4100FDF972 /* CircularImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D11D8D528269E4100FDF972 /* CircularImageView.swift */; };
 		4D11D8DA2826AB7200FDF972 /* HopTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D11D8D92826AB7200FDF972 /* HopTableViewCell.swift */; };
 		4D11D8DC2826D5AA00FDF972 /* BeerDetailHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D11D8DB2826D5AA00FDF972 /* BeerDetailHeader.swift */; };
+		4D1B0A122828411600ACD092 /* BeerFilterCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1B0A112828411600ACD092 /* BeerFilterCollectionViewCell.swift */; };
+		4D1B0A142828417B00ACD092 /* PaddingLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1B0A132828417B00ACD092 /* PaddingLabel.swift */; };
+		4D3616A82827B2690079EB85 /* RoundedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D3616A72827B2690079EB85 /* RoundedView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,6 +109,9 @@
 		4D11D8D82826A42800FDF972 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		4D11D8D92826AB7200FDF972 /* HopTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopTableViewCell.swift; sourceTree = "<group>"; };
 		4D11D8DB2826D5AA00FDF972 /* BeerDetailHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeerDetailHeader.swift; sourceTree = "<group>"; };
+		4D1B0A112828411600ACD092 /* BeerFilterCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeerFilterCollectionViewCell.swift; sourceTree = "<group>"; };
+		4D1B0A132828417B00ACD092 /* PaddingLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddingLabel.swift; sourceTree = "<group>"; };
+		4D3616A72827B2690079EB85 /* RoundedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -205,11 +211,14 @@
 			children = (
 				4D11D8C128266AD700FDF972 /* Beer Detail Cells */,
 				4D11D87228242FD100FDF972 /* BannerView.swift */,
+				4D11D8DB2826D5AA00FDF972 /* BeerDetailHeader.swift */,
+				4D1B0A112828411600ACD092 /* BeerFilterCollectionViewCell.swift */,
 				4D11D8892824467500FDF972 /* BeerTableViewCell.swift */,
 				4D11D8AA28252D4300FDF972 /* BookmarkView.swift */,
-				4D11D8B428256A0500FDF972 /* LoaderView.swift */,
 				4D11D8D528269E4100FDF972 /* CircularImageView.swift */,
-				4D11D8DB2826D5AA00FDF972 /* BeerDetailHeader.swift */,
+				4D11D8B428256A0500FDF972 /* LoaderView.swift */,
+				4D3616A72827B2690079EB85 /* RoundedView.swift */,
+				4D1B0A132828417B00ACD092 /* PaddingLabel.swift */,
 			);
 			path = "Custom Components";
 			sourceTree = "<group>";
@@ -468,11 +477,13 @@
 			files = (
 				4D11D8A62824771100FDF972 /* APIObject.swift in Sources */,
 				4D11D8DC2826D5AA00FDF972 /* BeerDetailHeader.swift in Sources */,
+				4D3616A82827B2690079EB85 /* RoundedView.swift in Sources */,
 				4D11D8752824395A00FDF972 /* BeerBoxViewController.swift in Sources */,
 				4D11D8B32825551800FDF972 /* PopupData.swift in Sources */,
 				4D11D8C0282668A000FDF972 /* PopupPresenter.swift in Sources */,
 				4D11D88F282456C200FDF972 /* Beer.swift in Sources */,
 				4D11D88A2824467500FDF972 /* BeerTableViewCell.swift in Sources */,
+				4D1B0A122828411600ACD092 /* BeerFilterCollectionViewCell.swift in Sources */,
 				4D11D87328242FD100FDF972 /* BannerView.swift in Sources */,
 				4D11D8AD2825371100FDF972 /* PopupViewController.swift in Sources */,
 				4D11D8C328266AFF00FDF972 /* GeneralInfoTableViewCell.swift in Sources */,
@@ -484,6 +495,7 @@
 				4D11D88C2824486300FDF972 /* Utilities.swift in Sources */,
 				4D11D8AB28252D4300FDF972 /* BookmarkView.swift in Sources */,
 				4D11D89428245BF700FDF972 /* BeerBoxViewPresenter.swift in Sources */,
+				4D1B0A142828417B00ACD092 /* PaddingLabel.swift in Sources */,
 				4D11D8D42826955A00FDF972 /* PairingTableViewCell.swift in Sources */,
 				4D11D89228245BE900FDF972 /* BeerBoxPresenter.swift in Sources */,
 				4D11D8BE2826685800FDF972 /* BeerDetailPresenter.swift in Sources */,

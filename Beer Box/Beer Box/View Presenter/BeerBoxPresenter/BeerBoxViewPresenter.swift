@@ -9,4 +9,5 @@ import Foundation
 
 protocol BeerBoxViewPresenter: ErrorViewPresenter, LoaderViewPresenter {
     func updateTableViewSnapshot()
+    func updateCollectionViewSnapshot()
 }

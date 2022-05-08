@@ -31,9 +31,10 @@ class PopupViewController: UIViewController {
     }()
     
     /// The content view of popup
-    private lazy var contentView: UIView = {
-        let view = UIView()
+    private lazy var contentView: RoundedView = {
+        let view = RoundedView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.corners = [.topLeft, .topRight]
         view.backgroundColor = UIColor.mode(dark: .darkGray, light: .mediumWhite)
         return view
     }()
@@ -120,7 +121,6 @@ class PopupViewController: UIViewController {
             descriptionLabel.topAnchor.constraint(equalTo: self.subTitleLabel.bottomAnchor, constant: 10),
             self.contentView.bottomAnchor.constraint(equalTo: self.descriptionLabel.bottomAnchor, constant: 20)
         ])
-        self.contentView.layer.cornerRadius = 20
         // Add swipe down gesture to content view
         let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(dismissView))
         swipeGesture.direction = .down
@@ -134,6 +134,7 @@ class PopupViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        self.contentView.roundCorners(corners: [.topLeft, .topRight], radius: 20)
         // Set data
         titleLabel.text = presenter?.data.title
         subTitleLabel.text = presenter?.data.subtitle
