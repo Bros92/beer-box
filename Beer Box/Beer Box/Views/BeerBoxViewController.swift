@@ -68,6 +68,7 @@ class BeerBoxViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.isPrefetchingEnabled = false
         collectionView.delegate = self
+        collectionView.showsHorizontalScrollIndicator = false
         collectionView.backgroundColor = .clear
         let size = NSCollectionLayoutSize(
             widthDimension: NSCollectionLayoutDimension.estimated(200),
