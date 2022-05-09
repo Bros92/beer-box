@@ -293,7 +293,7 @@ extension BeerBoxViewController: UICollectionViewDelegate {
         guard let cell = collectionView.cellForItem(at: indexPath), let item = filterDataSource?.itemIdentifier(for: indexPath) else { return false }
         if cell.isSelected {
             collectionView.deselectItem(at: indexPath, animated: true)
-            presenter.updateFilter(for: nil)
+            presenter.resetFilter()
         } else {
             collectionView.selectItem(at: indexPath, animated: true, scrollPosition: [])
             presenter.updateFilter(for: item.localizedType)

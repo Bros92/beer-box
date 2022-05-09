@@ -26,6 +26,7 @@ class BeerBoxPresener {
     private(set) var filteredName: String? {
         didSet {
             self.page = 1
+            self.beersList = []
             self.getBeers(for: filteredName)
         }
     }
@@ -41,17 +42,17 @@ class BeerBoxPresener {
             case .success(let beers):
                 self.viewPresenter?.hideActivityLoader()
                 
+                self.downloadCompleted = beers.count < 25
+                if beers.count > 24 {
+                    self.page += 1
+                }
+                
                 if self.page == 1 {
                     self.beersList = beers
                 } else {
                     self.beersList.append(contentsOf: beers)
-                    
                 }
-                if beersList.count < 25 {
-                    self.downloadCompleted = true
-                } else {
-                    self.page += 1
-                }
+                
                 self.viewPresenter?.updateTableViewSnapshot()
             case .failure(let error):
                 debugPrint(error.localizedDescription)
