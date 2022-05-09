@@ -17,11 +17,11 @@ class BeerFilterCollectionViewCell: UICollectionViewCell, Reusable {
         let label = PaddingLabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = UIColor.mode(dark: .mediumWhite, light: .semiDarkGray)
-        label.font = UIFont.arabotoRegular(size: 12)
+        label.font = UIFont.arabotoRegular(size: 14)
         label.textColor = UIColor.mode(dark: .veryLightGray, light: .mediumGray)
         label.backgroundColor = UIColor.mode(dark: .mediumGray, light: .opaqueWhite)
-        label.leftInset = 30
-        label.rightInset = 30
+        label.leftInset = 25
+        label.rightInset = 25
         return label
     }()
     
