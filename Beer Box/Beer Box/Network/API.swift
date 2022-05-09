@@ -40,34 +40,24 @@ struct API {
     func makeRequest<T: Codable>(
         _ type: T.Type,
         at endpoint: Endpoint,
-        with decoder: JSONDecoder = JSONDecoder(),
-        completionHandler: @escaping (_ result: Result<T, APIError>) -> Void) {
-            
+        with decoder: JSONDecoder = JSONDecoder()) async -> Result<T, APIError> {
+        
         // Convert APIEndpoint to an URLRequest
         do {
             let request = try endpoint.asURLRequest(baseURL: self.baseUrl)
-            URLSession.shared.dataTask(with: request) { response, _, error in
-                if let error = error {
-                    completionHandler(.failure(.genericError(error)))
-                }
-                guard let fileData = response else {
-                    completionHandler(.failure(.unknownUrl))
-                    return
-                }
-                // try to decode the response with api with the generic object
-                if let successResponse = try? JSONDecoder().decode(T.self, from: fileData) {
-                    completionHandler(.success(successResponse))
-                    // Try to decode the response with github error structure
-                } else if let failedResponse = try? JSONDecoder().decode(APIResponseError.self, from: fileData) {
-                    completionHandler(.failure(.remoteError(failedResponse)))
-                } else {
-                    // Handle a generic error
-                    completionHandler(.failure(.genericError(error)))
-                }
+            let (data, _) = try await URLSession.shared.data(for: request, delegate: nil)
+            // try to decode the response with api with the generic object
+            if let successResponse = try? JSONDecoder().decode(T.self, from: data) {
+                return .success(successResponse)
+                // Try to decode the response with github error structure
+            } else if let failedResponse = try? JSONDecoder().decode(APIResponseError.self, from: data) {
+                return .failure(.remoteError(failedResponse))
+            } else {
+                // Handle a decoding error
+                return .failure(.decodingError)
             }
-            .resume()
-        } catch {
-            completionHandler(.failure(.genericError(error)))
+        } catch let error {
+            return .failure(.genericError(error))
         }
     }
 }

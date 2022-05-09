@@ -35,27 +35,27 @@ class BeerBoxPresener {
         self.viewPresenter?.showActivityLoader()
         let request = BeerRequest(page: page, name: name)
         let endpoint = APIBeerEndpoint.getBeerList(request)
-        API.dev.makeRequest([Beer].self, at: endpoint) { [weak self] result in
-            self?.viewPresenter?.hideActivityLoader()
+        Task(priority: .background) {
+            let result = await API.dev.makeRequest([Beer].self, at: endpoint)
             switch result {
-            case .success(let beersList):
-                guard let strongSelf = self else { return }
-               
-                if strongSelf.page == 1 {
-                    strongSelf.beersList = beersList
+            case .success(let beers):
+                self.viewPresenter?.hideActivityLoader()
+                
+                if self.page == 1 {
+                    self.beersList = beers
                 } else {
-                    strongSelf.beersList.append(contentsOf: beersList)
-
+                    self.beersList.append(contentsOf: beers)
+                    
                 }
                 if beersList.count < 25 {
-                    strongSelf.downloadCompleted = true
+                    self.downloadCompleted = true
                 } else {
-                    strongSelf.page += 1
+                    self.page += 1
                 }
-                strongSelf.viewPresenter?.updateTableViewSnapshot()
+                self.viewPresenter?.updateTableViewSnapshot()
             case .failure(let error):
                 debugPrint(error.localizedDescription)
-                self?.viewPresenter?.showError(title: "GENERIC_ERROR_TITLE".localized, message: "GENERIC_ERROR_DESCRIPTION".localized)
+                self.viewPresenter?.showError(title: "GENERIC_ERROR_TITLE".localized, message: "GENERIC_ERROR_DESCRIPTION".localized)
             }
         }
     }
